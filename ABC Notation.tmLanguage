@@ -56,6 +56,8 @@
 					<string>string.unquoted</string>
 				</dict>
 			</dict>
+			<key>comment</key>
+			<string>Inline fields</string>
 			<key>match</key>
 			<string>\[([A-Z]:)(.*?)\]</string>
 		</dict>
@@ -65,9 +67,14 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>constant.character</string>
+					<string>constant.language</string>
 				</dict>
 				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>constant.character</string>
+				</dict>
+				<key>3</key>
 				<dict>
 					<key>name</key>
 					<string>constant.numeric</string>
@@ -76,7 +83,7 @@
 			<key>comment</key>
 			<string>Notes</string>
 			<key>match</key>
-			<string>([A-Ga-gz][,']*)(/?[&gt;&lt;0-9]*)</string>
+			<string>([\^=_]*)([A-Ga-gz][,']*)([0-9]*/*[&gt;&lt;0-9]*)</string>
 		</dict>
 		<dict>
 			<key>comment</key>
