@@ -1,47 +1,1264 @@
-{ "name": "ABC Notation",
-  "scopeName": "text.abcnotation",
-  "fileTypes": ["abc"],
-  "patterns": [
-    {
-      "match": "%.*",
-      "name": "comment.line",
-      "comment": "Comments"
-    },
-    {
-      "match": "[\\[:]*[|:][|\\]:]*(\\[?[0-9]+)?|(\\[[0-9]+)",
-      "name": "keyword.operator",
-      "comment": "Bar lines"
-    },
-    {
-  		"match": "^[A-Za-z]:([^%\\\\]*)",
-  		"name": "entity.name.function",
-      "captures": {
-        "1": { "name": "string.unquoted" }
-      },
-  		"comment": "Header lines"
-  	},
-    {
-      "match": "\\[([A-Z]:)(.*?)\\]",
-      "captures": {
-        "1": { "name": "entity.name.function" },
-        "2": { "name": "string.unquoted" }
-      },
-      "comment": "Inline fields"
-    },
-    {
-      "match": "([\\^=_]*)([A-Ga-gz][,']*)([0-9]*/*[><0-9]*)",
-      "captures": {
-        "1": { "name": "constant.language" },
-        "2": { "name": "constant.character" },
-        "3": { "name": "constant.numeric" }
-      },
-      "comment": "Notes"
-    },
-    {
-      "match": "[\\\"!].*?[\\\"!]",
-      "name": "string.quoted",
-      "comment": "Chord names + other annotations"
-    }   
-  ],
-  "uuid": "431a5f26-5897-4146-8415-25a3c4b859c0"
+{
+    "repository": {
+        "backquote": {
+            "match": "(\\`)", 
+            "captures": {
+                "1": {
+                    "name": "support.constant.backquote.abc"
+                }
+            }, 
+            "comment": "Backquote (used for spacing between note sequences)", 
+            "name": "meta.code.backquote.abc"
+        }, 
+        "abc-rest": {
+            "patterns": [
+                {
+                    "match": "([XZ])(\\d+)?", 
+                    "captures": {
+                        "2": {
+                            "name": "constant.numeric.rest-length.abc"
+                        }, 
+                        "1": {
+                            "name": "storage.type.abc-rest.abc"
+                        }
+                    }, 
+                    "name": "meta.code.abc-rest.abc"
+                }, 
+                {
+                    "match": "([xz])((?:\\d*\\/*(?:\\d*)?)|(?:\\d*>*(?:\\d*)?)|(?:\\d*<*(?:\\d*)?))?", 
+                    "captures": {
+                        "2": {
+                            "name": "constant.numeric.rest-length.abc"
+                        }, 
+                        "1": {
+                            "name": "storage.type.abc-rest.abc"
+                        }
+                    }, 
+                    "name": "meta.code.abc-rest.abc"
+                }
+            ], 
+            "comment": "Rests & Multi-measure Rests"
+        }, 
+        "macro": {
+            "match": "(\\~[a-zA-Z][a-zA-Z0-9]{0,30})", 
+            "captures": {
+                "1": {
+                    "name": "support.function.macro.abc"
+                }
+            }, 
+            "comment": "User-defined Macro", 
+            "name": "meta.code.macro.abc"
+        }, 
+        "abc-rest-sequence": {
+            "patterns": [
+                {
+                    "include": "#abc-rest"
+                }, 
+                {
+                    "include": "#grace"
+                }, 
+                {
+                    "include": "#decoration"
+                }, 
+                {
+                    "include": "#strings"
+                }
+            ], 
+            "comment": "Rest Sequences"
+        }, 
+        "accidental": {
+            "match": "([_\\^]{2}|=|[_=\\^]\n (?:\\d*/*(?:\\d*)?)|\n (?:\\d(?!\\.))+\n)", 
+            "captures": {
+                "1": {
+                    "name": "constant.language.accidental.abc"
+                }
+            }, 
+            "comment": "Accidentals", 
+            "name": "meta.code.accidental.abc"
+        }, 
+        "tune-body": {
+            "patterns": [
+                {
+                    "include": "#abc-chord"
+                }, 
+                {
+                    "include": "#abc-note-sequence"
+                }, 
+                {
+                    "include": "#abc-rest-sequence"
+                }, 
+                {
+                    "include": "#abc-space-sequence"
+                }, 
+                {
+                    "include": "#macro"
+                }, 
+                {
+                    "include": "#operators"
+                }, 
+                {
+                    "include": "#barline"
+                }, 
+                {
+                    "include": "#inline-field"
+                }, 
+                {
+                    "include": "#decoration"
+                }, 
+                {
+                    "include": "#field"
+                }, 
+                {
+                    "include": "#comments"
+                }, 
+                {
+                    "include": "#directive"
+                }
+            ], 
+            "end": "^\\s*$", 
+            "begin": "^(K:)\\s*([^%\\\\]+)?", 
+            "beginCaptures": {
+                "2": {
+                    "name": "string.unquoted.key.abc"
+                }, 
+                "1": {
+                    "name": "keyword.control.key.abc"
+                }
+            }, 
+            "comment": "ABC Tune Body", 
+            "name": "meta.tune.body.abc"
+        }, 
+        "abc-note": {
+            "patterns": [
+                {
+                    "match": "(?x)\n  ([_\\^]{2}|=|[_=\\^](?:(?:\\d(?!\\.))*\\/*(?:\\d(?!\\.))*)?)?\n  ([A-Ga-g][,']*)\n  (\\d*(?!\\.)/*(?:\\d*(?!\\.))?)?", 
+                    "captures": {
+                        "3": {
+                            "name": "constant.numeric.note-length.abc"
+                        }, 
+                        "2": {
+                            "name": "constant.character.note.abc"
+                        }, 
+                        "1": {
+                            "name": "constant.language.accidental.abc"
+                        }
+                    }, 
+                    "name": "meta.code.note.abc"
+                }, 
+                {
+                    "match": "(?x)\n  ([_\\^]{2}|=|[_=\\^](?:\\d*\\/*(?:\\d*)?)|(?:\\d(?!\\.))+)?\n  ([A-Ga-g][,']*)\n  (\\d*(?!\\.)[\\>]*(?:\\d*(?!\\.))?)?", 
+                    "captures": {
+                        "3": {
+                            "name": "constant.numeric.note-length.abc"
+                        }, 
+                        "2": {
+                            "name": "constant.character.note.abc"
+                        }, 
+                        "1": {
+                            "name": "constant.language.accidental.abc"
+                        }
+                    }, 
+                    "name": "meta.code.note.abc"
+                }, 
+                {
+                    "match": "(?x)\n  ([_\\^]{2}|=|[_=\\^](?:\\d*\\/*(?:\\d*)?)|(?:\\d(?!\\.))+)?\n  ([A-Ga-g][,']*)\n  (\\d*(?!\\.)[\\<]*(?:\\d*(?!\\.))?)?", 
+                    "captures": {
+                        "3": {
+                            "name": "constant.numeric.note-length.abc"
+                        }, 
+                        "2": {
+                            "name": "constant.character.note.abc"
+                        }, 
+                        "1": {
+                            "name": "constant.language.accidental.abc"
+                        }
+                    }, 
+                    "name": "meta.code.note.abc"
+                }, 
+                {
+                    "match": "(?x)\n  ([_\\^]{2}|=|[_=\\^](?:\\d*\\/*(?:\\d*)?)|(?:\\d(?!\\.))+)?\n  ([A-Ga-g][,']*)\n  (\\d*(?!\\.))", 
+                    "captures": {
+                        "3": {
+                            "name": "constant.numeric.note-length.abc"
+                        }, 
+                        "2": {
+                            "name": "constant.character.note.abc"
+                        }, 
+                        "1": {
+                            "name": "constant.language.accidental.abc"
+                        }
+                    }, 
+                    "name": "meta.code.note.abc"
+                }
+            ], 
+            "comment": "Note Values (Accidentals, Pitch, Note Length)"
+        }, 
+        "escape": {
+            "patterns": [
+                {
+                    "match": "(\\\\\\\\)", 
+                    "name": "constant.character.escape.abc"
+                }, 
+                {
+                    "match": "(\\\\u\\h{4})", 
+                    "name": "constant.character.escape.abc"
+                }, 
+                {
+                    "match": "(?:\\\\[[:punct:]&&[\\w]&&[^[ \\t\\v\\f]]]{2})", 
+                    "name": "constant.character.escape.abc"
+                }, 
+                {
+                    "match": "(?:&\\w+;)", 
+                    "name": "constant.character.escape.abc"
+                }, 
+                {
+                    "match": "(?:&#\\d+;)", 
+                    "name": "constant.character.escape.abc"
+                }, 
+                {
+                    "match": "(?:&#x\\h+;)", 
+                    "name": "constant.character.escape.abc"
+                }, 
+                {
+                    "match": "(\\\\%)", 
+                    "name": "constant.character.escape.abc"
+                }
+            ], 
+            "comment": "Escape Characters"
+        }, 
+        "note-length": {
+            "match": "((?:\\d*/*(?:\\d*)?)|\n (?:\\d*>*(?:\\d*)?)|\n (?:\\d*<*(?:\\d*)?)|\n (?:\\d+(?!\\.))\n)", 
+            "captures": {
+                "1": {
+                    "name": "constant.numeric.note-length.abc"
+                }
+            }, 
+            "comment": "Note Lengths", 
+            "name": "meta.code.note-length.abc"
+        }, 
+        "line-continue": {
+            "match": "(\\\\(?= *| *$))", 
+            "captures": {
+                "1": {
+                    "name": "support.constant.line-continue.abc"
+                }
+            }, 
+            "comment": "Line Continue", 
+            "name": "meta.code.line-continue.abc"
+        }, 
+        "illegals": {
+            "patterns": [
+                {
+                    "match": "([\\[]{2,}(?<!\\|)(?!:))", 
+                    "captures": {
+                        "1": {
+                            "name": "invalid.illegal.barline.abc"
+                        }
+                    }, 
+                    "name": "meta.code.illegal.abc"
+                }, 
+                {
+                    "match": "([\\]](?!:)(?<![|\\]]))", 
+                    "captures": {
+                        "1": {
+                            "name": "invalid.illegal.barline.abc"
+                        }
+                    }, 
+                    "name": "meta.code.illegal.abc"
+                }, 
+                {
+                    "match": "([\\[]{2,}(?!:))", 
+                    "captures": {
+                        "1": {
+                            "name": "invalid.illegal.barline.abc"
+                        }
+                    }, 
+                    "name": "meta.code.illegal.abc"
+                }
+            ], 
+            "comment": "Illegal Syntax"
+        }, 
+        "abc-space-sequence": {
+            "patterns": [
+                {
+                    "include": "#abc-space"
+                }, 
+                {
+                    "include": "#grace"
+                }, 
+                {
+                    "include": "#decoration"
+                }, 
+                {
+                    "include": "#strings"
+                }
+            ], 
+            "comment": "Space Sequences"
+        }, 
+        "decoration": {
+            "patterns": [
+                {
+                    "match": "(?:^\\s*)?([-\\.~HLMOPSTuv](?!:))", 
+                    "captures": {
+                        "1": {
+                            "name": "variable.parameter.decoration.symbol.abc"
+                        }
+                    }, 
+                    "name": "meta.code.decoration.symbol.abc"
+                }, 
+                {
+                    "match": "(!\\w+!)", 
+                    "captures": {
+                        "1": {
+                            "name": "variable.parameter.decoration.abc"
+                        }
+                    }, 
+                    "name": "meta.code.decoration.abc"
+                }, 
+                {
+                    "match": "(?x)\n  (!(?:\\+|-[()]|\\/{1,3}|[0-5]|\\<[()]?|\\>[()]?|\\^|\n     accent|arpeggio|beam-accel|beam-rall|beambr[12]|beamon|\n     breath|coda|courtesy|crescendo[()]?|\n     D\\.C\\.(?:alcoda|alfine)?|D\\.S\\.(?:alcoda|alfine)?|\n     dacapo|dacoda|diminuendo[()]?|dot|downbow|editorial|\n     emphasis|f+|fermata|fine|gmark|invertedfermata|\n     invertedturn|invertedturnx|invisible|longphrase|\n     lowermordent|marcato|mediumphrase|mf|mordent|mp|open|p+|\n     plus|pralltriller|rbend|rbstop|roll|segno|sfz|shortphrase|\n     slide|snap|stemless|tenuto|thumb|trem[1-4]|trill[()]?|\n     turn|turnx|upbow|uppermordent|wedge|xstem|\\~[()])!)", 
+                    "captures": {
+                        "1": {
+                            "name": "variable.parameter.decoration.abc"
+                        }
+                    }, 
+                    "name": "meta.code.decoration.abc"
+                }, 
+                {
+                    "match": "((?:\\((?![\\d:])[',]?)|\\))", 
+                    "captures": {
+                        "1": {
+                            "name": "support.type.slur.abc"
+                        }
+                    }, 
+                    "name": "meta.code.decoration.slur.abc"
+                }
+            ], 
+            "comment": "Decoration Symbols"
+        }, 
+        "field": {
+            "patterns": [
+                {
+                    "match": "^([[:alpha:]&&[^IKPVTXr]]:)([^%\\n\\r]*)", 
+                    "captures": {
+                        "2": {
+                            "name": "string.unquoted.field.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.field.abc"
+                        }
+                    }, 
+                    "name": "meta.code.field.abc"
+                }, 
+                {
+                    "match": "^(r:)([^%\\n\\r]*)", 
+                    "captures": {
+                        "2": {
+                            "name": "comment.block.remark.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.field.remark.abc"
+                        }
+                    }, 
+                    "comment": "Remark Field", 
+                    "name": "meta.code.field.remark.abc"
+                }, 
+                {
+                    "match": "^(I:)\\s*(\\w+)[ \\t\\v\\f]+([^%\\n\\r]*)", 
+                    "captures": {
+                        "3": {
+                            "name": "variable.parameter.instruction.abc"
+                        }, 
+                        "2": {
+                            "name": "keyword.operator.word.instruction.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "comment": "Instruction Field", 
+                    "name": "meta.code.field.instruction.abc", 
+                    "patterns": [
+                        {
+                            "include": "#spacing-length"
+                        }
+                    ]
+                }, 
+                {
+                    "match": "^(K:)\\s*([^%\\n\\r]+)", 
+                    "captures": {
+                        "2": {
+                            "name": "string.unquoted.key.abc entity.name.function.key.abc"
+                        }, 
+                        "1": {
+                            "name": "keyword.control.key.abc"
+                        }
+                    }, 
+                    "comment": "Key Field", 
+                    "name": "meta.code.field.key.abc"
+                }, 
+                {
+                    "match": "^(T:)\\s*([^%\\n\\r]+)", 
+                    "captures": {
+                        "2": {
+                            "name": "string.unquoted.title.abc meta.toc-list.title.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.title.abc"
+                        }
+                    }, 
+                    "comment": "Title Field", 
+                    "name": "meta.code.field.title.abc"
+                }, 
+                {
+                    "match": "^(V:)\\s*([^%\\r\\n]+)", 
+                    "captures": {
+                        "2": {
+                            "name": "variable.parameter.voice.abc meta.toc-list.voice.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.field.voice.abc"
+                        }
+                    }, 
+                    "comment": "Voice Field", 
+                    "name": "meta.code.field.voice.abc"
+                }, 
+                {
+                    "match": "^(P:)\\s*([^%\\r\\n]+)", 
+                    "captures": {
+                        "2": {
+                            "name": "variable.parameter.part.abc meta.toc-list.part.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.field.part.abc"
+                        }
+                    }, 
+                    "comment": "Part Field", 
+                    "name": "meta.code.field.part.abc"
+                }
+            ], 
+            "comment": "Fields, Remark Fields, Instruction Fields, & Key Fields"
+        }, 
+        "barline": {
+            "patterns": [
+                {
+                    "match": "(?x)\n  ((?:[\\|\\[\\]][\\|\\[\\]](?=:):)|\n    (?:\\[+:+)|\n    (?::+\\[+)|\n    (?:\\]+:+)|\n    (?::+\\]+)|\n    (?:[|]*\\]{2}:*)|\n    (?:(?=\\|)\\|[\\[\\]])|\n    (?:[:|]*\\|[:|]*)|\n    (?:[:|]+\\[{1,2}))\n  (\\d+(?:[,-]\\d+)*)?", 
+                    "captures": {
+                        "2": {
+                            "name": "support.type.numeric.barline.abc"
+                        }, 
+                        "1": {
+                            "name": "keyword.operator.barline.abc"
+                        }
+                    }, 
+                    "name": "meta.code.barline.abc"
+                }, 
+                {
+                    "match": "(:*\\[\\|\\]:*|:*\\[\\]:*)", 
+                    "captures": {
+                        "1": {
+                            "name": "comment.block.documentation.barline.abc"
+                        }
+                    }, 
+                    "name": "meta.code.barline.abc"
+                }, 
+                {
+                    "match": "(:*[\\|\\[\\]])(\\d(?:[,-]\\d)*)+", 
+                    "captures": {
+                        "2": {
+                            "name": "support.type.numeric.barline.abc"
+                        }, 
+                        "1": {
+                            "name": "keyword.operator.barline.abc"
+                        }
+                    }, 
+                    "name": "meta.code.barline.abc"
+                }
+            ], 
+            "comment": "Bar lines and Repeat Section Bar Lines"
+        }, 
+        "overlay": {
+            "match": "(\\(\\&|\\&\\&?|\\&\\))", 
+            "captures": {
+                "1": {
+                    "name": "support.function.overlay.abc"
+                }
+            }, 
+            "comment": "Voice Overlay (Union) Operators", 
+            "name": "meta.code.overlay.abc"
+        }, 
+        "comments": {
+            "match": "(?:^\\s*)?%(?!%|abc).*", 
+            "comment": "ABC Line Comments", 
+            "name": "comment.line.percentage.abc"
+        }, 
+        "tuplet": {
+            "match": "(\\(\\d+(?::\\d*(?::\\d*)?)?)", 
+            "captures": {
+                "1": {
+                    "name": "support.type.tuplet.abc"
+                }
+            }, 
+            "comment": "Tuplets", 
+            "name": "meta.code.tuplet.abc"
+        }, 
+        "embedded": {
+            "patterns": [
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "((?:^\\s*)?%%)\\s*(endtext)\\b", 
+                    "begin": "((?:^\\s*)?%%)\\s*(begintext)\\b([ \\t\\v\\f]+(?:obeylines|fill|ragged|justify|align|skip))?", 
+                    "beginCaptures": {
+                        "3": {
+                            "name": "variable.parameter.directive.abc"
+                        }, 
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "name": "meta.text.directive.abc", 
+                    "contentName": "string.unquoted.typeset.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "((?:^\\s*)?%%)\\s*(endsvg)\\b", 
+                    "begin": "((?:^\\s*)?%%)\\s*(beginsvg)\\b", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "name": "meta.svg.directive.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "((?:^\\s*)?%%)\\s*(endps)\\b", 
+                    "begin": "((?:^\\s*)?%%)\\s*(beginps)\\b([ \\t\\v\\f]+(?:nosvg))?", 
+                    "beginCaptures": {
+                        "3": {
+                            "name": "variable.parameter.directive.abc"
+                        }, 
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "name": "meta.ps.directive.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "((?:^\\s*)?%%)\\s*(endjs)\\b", 
+                    "begin": "((?:^\\s*)?%%)\\s*(beginjs)\\b", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "name": "meta.js.directive.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "((?:^\\s*)?%%)\\s*(endml)\\b", 
+                    "begin": "((?:^\\s*)?%%)\\s*(beginml)\\b", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "name": "meta.html.directive.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "^(I:)\\s*(endtext)\\b", 
+                    "begin": "^(I:)\\s*(begintext)\\b([ \\t\\v\\f]+(?:obeylines|fill|ragged|justify|align|skip))?", 
+                    "beginCaptures": {
+                        "3": {
+                            "name": "variable.parameter.directive.abc"
+                        }, 
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "name": "meta.text.instruction.abc", 
+                    "contentName": "string.unquoted.free.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "(^I:)\\s*(endsvg)\\b", 
+                    "begin": "(^I:)\\s*(beginsvg)\\b", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "name": "meta.svg.instruction.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "^(I:)\\s*(endps)\\b", 
+                    "begin": "(^I:)\\s*(beginps)\\b([ \\t\\v\\f]+(?:nosvg))?", 
+                    "beginCaptures": {
+                        "3": {
+                            "name": "variable.parameter.directive.abc"
+                        }, 
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "name": "meta.ps.instruction.abc"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "^(I:)\\s*(endjs)\\b", 
+                    "begin": "(^I:)\\s*(beginjs)\\b", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "name": "meta.js.instruction.abc", 
+                    "contentName": "source.javascript"
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }, 
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ], 
+                    "end": "(^I:)\\s*(endml)\\b", 
+                    "begin": "(^I:)\\s*(beginml)\\b", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "support.constant.instruction.abc"
+                        }
+                    }, 
+                    "name": "meta.svg.instruction.abc", 
+                    "contentName": "source.html"
+                }
+            ], 
+            "comment": "Typeset Text, Embedded SVG, Embedded PostScript, Embedded HTML, and Embedded JavaScript"
+        }, 
+        "strings": {
+            "patterns": [
+                {
+                    "patterns": [
+                        {
+                            "match": "\"\""
+                        }, 
+                        {
+                            "include": "#escape"
+                        }
+                    ], 
+                    "end": "(\\\")", 
+                    "begin": "(\\\"(?![_<>^@]))", 
+                    "beginCaptures": {
+                        "1": {
+                            "name": "punctuation.definition.string.chord.begin.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "1": {
+                            "name": "punctuation.definition.string.chord.end.abc"
+                        }
+                    }, 
+                    "name": "meta.code.string.chord.abc", 
+                    "contentName": "string.quoted.double.chord.abc"
+                }, 
+                {
+                    "begin": "(\\\"[_<>^@])", 
+                    "comment": "String Annotations", 
+                    "name": "meta.code.string.annotation.abc", 
+                    "contentName": "string.quoted.double.annotation.abc", 
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }
+                    ], 
+                    "end": "(\\\")", 
+                    "beginCaptures": {
+                        "1": {
+                            "name": "punctuation.definition.string.annotation.begin.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "1": {
+                            "name": "punctuation.definition.string.annotation.end.abc"
+                        }
+                    }
+                }
+            ], 
+            "comment": "Chord symbols and String Annotations"
+        }, 
+        "note": {
+            "match": "([A-Ga-g][,']*)", 
+            "captures": {
+                "1": {
+                    "name": "constant.character.note.abc"
+                }
+            }, 
+            "comment": "Pitch Value", 
+            "name": "meta.code.note.abc"
+        }, 
+        "operators": {
+            "patterns": [
+                {
+                    "include": "#tuplet"
+                }, 
+                {
+                    "include": "#backquote"
+                }, 
+                {
+                    "include": "#overlay"
+                }, 
+                {
+                    "include": "#line-break"
+                }, 
+                {
+                    "include": "#line-continue"
+                }
+            ], 
+            "comment": "Tuplets, Backquotes, Unions, Line Breaks, Line Continuations"
+        }, 
+        "abc-space": {
+            "match": "(?x)\n  ([yY])\n  (\\d+(?:\\.\\d*(?:pt|in|cm)?)?)?", 
+            "captures": {
+                "2": {
+                    "name": "constant.numeric.space-length.abc"
+                }, 
+                "1": {
+                    "name": "storage.type.spacer.abc"
+                }
+            }, 
+            "comment": "Spacer", 
+            "name": "meta.code.abc-space.abc"
+        }, 
+        "grace": {
+            "patterns": [
+                {
+                    "include": "#note"
+                }, 
+                {
+                    "include": "#note-length"
+                }, 
+                {
+                    "include": "#abc-rest"
+                }, 
+                {
+                    "include": "#decoration"
+                }
+            ], 
+            "end": "(\\})", 
+            "begin": "(\\{\\/?)", 
+            "beginCaptures": {
+                "1": {
+                    "name": "support.type.grace.abc"
+                }
+            }, 
+            "comment": "Grace Notes", 
+            "endCaptures": {
+                "1": {
+                    "name": "support.type.grace.abc"
+                }
+            }, 
+            "name": "meta.code.grace.abc"
+        }, 
+        "abc-chord": {
+            "patterns": [
+                {
+                    "include": "#abc-chord-elements"
+                }
+            ], 
+            "end": "(\\](?<![:|]))", 
+            "begin": "(\\[(?![:|\\[\\]\\d]|(?:[a-zA-Z]:)))", 
+            "beginCaptures": {
+                "1": {
+                    "name": "support.type.chord.abc"
+                }
+            }, 
+            "comment": "Chords\nPLEASE DO NOT ALTER THIS SECTION WITHOUT GOOD REASON.\nBecause of how chords work, they have to 'escape' from\nbeing misinterpreted as inline fields or barlines by the\nhighlighter engine. Initially, they were defined as a pattern that\nhad a start and end, but this interfering with both bar lines and\ninline field patterns, since a scope for chords would obscure the\nscope for the other elements. While in the ABC Standard, these rules\nare not explicitly stated, the highlighting rule for chords expects\nchords to exist as a single 'unit', similar to how individual notes\nare highlighted. The only difference is that chords highlight their\nbrackets separately from the notes.", 
+            "endCaptures": {
+                "1": {
+                    "name": "support.type.chord.abc"
+                }
+            }, 
+            "name": "meta.code.chord.abc"
+        }, 
+        "abc-chord-elements": {
+            "patterns": [
+                {
+                    "include": "#abc-note"
+                }, 
+                {
+                    "include": "#abc-rest"
+                }, 
+                {
+                    "include": "#abc-space"
+                }, 
+                {
+                    "include": "#decoration"
+                }, 
+                {
+                    "include": "#overlay"
+                }
+            ], 
+            "comment": "Chord Element Sequences"
+        }, 
+        "directive": {
+            "patterns": [
+                {
+                    "match": "((?:^\\s*)?%%)\\s*(\\w*)\\b([^%\\n\\r]*)", 
+                    "captures": {
+                        "3": {
+                            "name": "variable.parameter.directive.abc"
+                        }, 
+                        "2": {
+                            "name": "support.function.directive.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "name": "meta.directive.abc"
+                }, 
+                {
+                    "match": "((?:^\\s*)?%)(abc(?:-\\d\\.\\d)?)", 
+                    "captures": {
+                        "2": {
+                            "name": "entity.name.namespace.abc"
+                        }, 
+                        "1": {
+                            "name": "comment.line.percentage.abc"
+                        }
+                    }, 
+                    "name": "meta.namespace.abc", 
+                    "patterns": [
+                        {
+                            "include": "#comments"
+                        }, 
+                        {
+                            "include": "#directive"
+                        }
+                    ]
+                }
+            ], 
+            "comment": "Directives and Namespaces"
+        }, 
+        "line-break": {
+            "match": "(\\$(?= *| *$))", 
+            "captures": {
+                "1": {
+                    "name": "support.constant.line-break.abc"
+                }
+            }, 
+            "comment": "Line Break", 
+            "name": "meta.code.line-break.abc"
+        }, 
+        "abc-note-sequence": {
+            "patterns": [
+                {
+                    "include": "#abc-note"
+                }, 
+                {
+                    "include": "#grace"
+                }, 
+                {
+                    "include": "#decoration"
+                }, 
+                {
+                    "include": "#strings"
+                }
+            ], 
+            "comment": "Note Sequences"
+        }, 
+        "spacing-length": {
+            "match": "(\\d*(?:\\.\\d*)?(?:pt|in|cm)?)", 
+            "captures": {
+                "1": {
+                    "name": "constant.numeric.float.space-length.abc"
+                }
+            }, 
+            "comment": "Spacing Length Parameter", 
+            "name": "meta.code.space-length.abc"
+        }, 
+        "inline-field": {
+            "patterns": [
+                {
+                    "end": "(\\])", 
+                    "begin": "(\\[[[:alpha:]&&[^IKPVXr]]:)", 
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.abc"
+                        }
+                    }, 
+                    "comment": "Inline Fields", 
+                    "endCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.abc"
+                        }
+                    }, 
+                    "name": "meta.code.inline-field.abc", 
+                    "contentName": "string.unquoted.inline-field.abc"
+                }, 
+                {
+                    "end": "(\\])", 
+                    "begin": "(\\[r:)", 
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.remark.abc"
+                        }
+                    }, 
+                    "comment": "Inline Remark Field", 
+                    "endCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.remark.abc"
+                        }
+                    }, 
+                    "name": "meta.code.inline-field.remark.abc", 
+                    "contentName": "comment.block.remark.abc"
+                }, 
+                {
+                    "begin": "(\\[I:)\\s*(\\w+)", 
+                    "comment": "Inline Instruction Field", 
+                    "name": "meta.code.inline-field.instruction.abc", 
+                    "contentName": "variable.parameter.instruction.abc", 
+                    "patterns": [
+                        {
+                            "include": "#spacing-length"
+                        }
+                    ], 
+                    "end": "(\\])", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "keyword.operator.word.instruction.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.instruction.abc"
+                        }
+                    }, 
+                    "endCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.instruction.abc"
+                        }
+                    }
+                }, 
+                {
+                    "patterns": [
+                        {
+                            "include": "#escape"
+                        }
+                    ], 
+                    "end": "(\\])", 
+                    "begin": "(\\[T:)\\s*([^%\\n\\r\\]]+)", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "string.unquoted.title.abc meta.toc-list.title.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.title.abc"
+                        }
+                    }, 
+                    "comment": "Inline Title Field", 
+                    "endCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.title.abc"
+                        }
+                    }, 
+                    "name": "meta.code.inline-field.title.abc"
+                }, 
+                {
+                    "end": "(\\])", 
+                    "begin": "(\\[V:)\\s*([^%\\r\\n\\]]+)", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "variable.parameter.voice.abc meta.toc-list.voice.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.voice.abc"
+                        }
+                    }, 
+                    "comment": "Inline Voice Field", 
+                    "endCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.voice.abc"
+                        }
+                    }, 
+                    "name": "meta.code.inline-field.voice.abc"
+                }, 
+                {
+                    "end": "(\\])", 
+                    "begin": "(\\[P:)\\s*([^%\\r\\n\\]]+)", 
+                    "beginCaptures": {
+                        "2": {
+                            "name": "variable.parameter.part.abc meta.toc-list.part.abc"
+                        }, 
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.part.abc"
+                        }
+                    }, 
+                    "comment": "Inline Part Field", 
+                    "endCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.inline-field.part.abc"
+                        }
+                    }, 
+                    "name": "meta.code.inline-field.part.abc"
+                }
+            ]
+        }
+    }, 
+    "foldingStartMarker": "^X:\\s*\\d+", 
+    "fileTypes": [
+        "abc"
+    ], 
+    "name": "ABC Notation", 
+    "scopeName": "source.abc", 
+    "patterns": [
+        {
+            "patterns": [
+                {
+                    "include": "#tune-body"
+                }, 
+                {
+                    "include": "#field"
+                }, 
+                {
+                    "include": "#comments"
+                }, 
+                {
+                    "include": "#directive"
+                }
+            ], 
+            "end": "^\\s*$", 
+            "begin": "^(X:)\\s*(\\d+)", 
+            "beginCaptures": {
+                "2": {
+                    "name": "constant.numeric.index.abc meta.toc-list.index.abc"
+                }, 
+                "1": {
+                    "name": "keyword.control.index.abc"
+                }
+            }, 
+            "comment": "ABC Tune", 
+            "name": "meta.tune.abc"
+        }, 
+        {
+            "include": "#field"
+        }, 
+        {
+            "include": "#comments"
+        }, 
+        {
+            "include": "#directive"
+        }, 
+        {
+            "include": "#embedded"
+        }
+    ], 
+    "foldingStopMarker": "^\\s*$", 
+    "uuid": "431a5f26-5897-4146-8415-25a3c4b859c0"
 }
